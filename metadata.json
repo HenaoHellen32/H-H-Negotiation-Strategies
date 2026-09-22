@@ -1,0 +1,6 @@
+{
+  "name": "Suite de Estrategia de Negociación",
+  "description": "Calculadora estratégica para evaluar la probabilidad de éxito y el Punto de Reserva (PR) según la metodología de negociación basada en BATNA.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
