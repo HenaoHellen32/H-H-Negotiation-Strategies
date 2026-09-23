@@ -1,17 +1,21 @@
 import React from 'react';
-import { ArrowDownRight, ArrowUpRight, Info, AlertTriangle, ShieldCheck, HelpCircle } from 'lucide-react';
-import { CurrencyCode, NegotiationRole, ReservationPointState } from '../types';
-import { formatCurrency } from '../utils/formatters';
+import { ArrowDownRight, ArrowUpRight, Info, AlertTriangle, ShieldCheck, HelpCircle, Coins } from 'lucide-react';
+import { CurrencyCode, NegotiationRole, PresetScenario, ReservationPointState } from '../types';
+import { formatCurrency, CURRENCIES } from '../utils/formatters';
 
 interface ReservationPointCalculatorProps {
   state: ReservationPointState;
   currency: CurrencyCode;
+  activePreset?: PresetScenario | null;
+  onCurrencyChange?: (currency: CurrencyCode) => void;
   onChange: (state: ReservationPointState) => void;
 }
 
 export const ReservationPointCalculator: React.FC<ReservationPointCalculatorProps> = ({
   state,
   currency,
+  activePreset,
+  onCurrencyChange,
   onChange,
 }) => {
   const isComprador = state.rol === 'comprador';
@@ -22,6 +26,10 @@ export const ReservationPointCalculator: React.FC<ReservationPointCalculatorProp
       [field]: value,
     });
   };
+
+  const buyerRoleText = activePreset?.buyerRoleLabel || 'Comprador (Busco pagar menos)';
+  const sellerRoleText = activePreset?.sellerRoleLabel || 'Vendedor (Busco cobrar más)';
+  const currentRoleDisplay = isComprador ? buyerRoleText : sellerRoleText;
 
   const base = Math.max(0, state.base || 0);
   const transicion = Math.max(0, state.transicion || 0);
@@ -71,36 +79,53 @@ export const ReservationPointCalculator: React.FC<ReservationPointCalculatorProp
         <form id="calc-pr" className="mt-5 space-y-4" onSubmit={(e) => e.preventDefault()}>
           {/* Role selector */}
           <div>
-            <label htmlFor="rol-pr" className="text-xs font-semibold text-slate-700 block">
-              Tu Rol en la Negociación
+            <label htmlFor="rol-pr" className="text-xs font-semibold text-slate-700 flex items-center justify-between flex-wrap gap-1.5">
+              <span>Tu Rol en la Negociación</span>
+              <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full border transition-colors ${
+                isComprador
+                  ? 'bg-blue-50 text-blue-700 border-blue-200'
+                  : 'bg-emerald-50 text-emerald-700 border-emerald-200'
+              }`}>
+                Rol Activo: {currentRoleDisplay}
+              </span>
             </label>
-            <div className="grid grid-cols-2 gap-2 mt-1.5">
+            <div className="grid grid-cols-2 gap-2 mt-2">
               <button
                 type="button"
                 id="role-btn-comprador"
                 onClick={() => updateField('rol', 'comprador')}
-                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg text-xs font-semibold border transition cursor-pointer text-center ${
                   isComprador
-                    ? 'bg-blue-50 border-blue-300 text-blue-800 shadow-xs'
+                    ? 'bg-blue-50 border-blue-300 text-blue-900 shadow-xs ring-1 ring-blue-300'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <ArrowDownRight className="w-3.5 h-3.5 text-blue-600" />
-                <span>Comprador (Techo)</span>
+                <div className="flex items-center gap-1 font-bold">
+                  <ArrowDownRight className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                  <span className="truncate">{activePreset?.buyerRoleLabel || 'Comprador'}</span>
+                </div>
+                <span className="text-[10px] font-normal text-slate-500 mt-0.5">
+                  Límite Máximo Aceptable
+                </span>
               </button>
 
               <button
                 type="button"
                 id="role-btn-vendedor"
                 onClick={() => updateField('rol', 'vendedor')}
-                className={`flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-xs font-semibold border transition cursor-pointer ${
+                className={`flex flex-col items-center justify-center p-2.5 rounded-lg text-xs font-semibold border transition cursor-pointer text-center ${
                   !isComprador
-                    ? 'bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs'
+                    ? 'bg-emerald-50 border-emerald-300 text-emerald-900 shadow-xs ring-1 ring-emerald-300'
                     : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100'
                 }`}
               >
-                <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Vendedor (Piso)</span>
+                <div className="flex items-center gap-1 font-bold">
+                  <ArrowUpRight className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span className="truncate">{activePreset?.sellerRoleLabel || 'Vendedor'}</span>
+                </div>
+                <span className="text-[10px] font-normal text-slate-500 mt-0.5">
+                  Límite Mínimo Aceptable
+                </span>
               </button>
             </div>
 
@@ -114,6 +139,34 @@ export const ReservationPointCalculator: React.FC<ReservationPointCalculatorProp
               <option value="comprador">Comprador (Busco pagar menos)</option>
               <option value="vendedor">Vendedor (Busco cobrar más)</option>
             </select>
+          </div>
+
+          {/* Moneda de la Negociación */}
+          <div className="bg-slate-50 border border-slate-200/90 rounded-lg p-2.5 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5">
+              <Coins className="w-4 h-4 text-slate-500 shrink-0" />
+              <label htmlFor="currency-select-pr" className="text-xs font-semibold text-slate-700 whitespace-nowrap">
+                Moneda de la Negociación:
+              </label>
+            </div>
+            {onCurrencyChange ? (
+              <select
+                id="currency-select-pr"
+                value={currency}
+                onChange={(e) => onCurrencyChange(e.target.value as CurrencyCode)}
+                className="text-xs font-bold text-slate-800 bg-white border border-slate-300 rounded-md px-2.5 py-1 focus:border-blue-500 focus:ring-1 focus:ring-blue-200 outline-none cursor-pointer shadow-2xs max-w-[200px] truncate"
+              >
+                {Object.values(CURRENCIES).map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="text-xs font-bold text-slate-800 bg-white border border-slate-200 px-2.5 py-1 rounded">
+                {CURRENCIES[currency]?.name || currency}
+              </span>
+            )}
           </div>
 
           {/* Base BATNA */}
@@ -219,7 +272,7 @@ export const ReservationPointCalculator: React.FC<ReservationPointCalculatorProp
               </span>
             ) : (
               <span>
-                Cualquier oferta del comprador por debajo de <strong>{formattedPR}</strong> te deja en peor posición que tu alternativa. Nunca aceptes por debajo de este piso.
+                Cualquier oferta del comprador por debajo de <strong>{formattedPR}</strong> te deja en peor posición que tu alternativa. Nunca aceptes por debajo de este límite crítico.
               </span>
             )}
           </div>

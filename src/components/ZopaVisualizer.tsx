@@ -71,10 +71,15 @@ export const ZopaVisualizer: React.FC<ZopaVisualizerProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
             {/* Input for Counterpart PR */}
             <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-              <label htmlFor="counterpart-pr-input" className="text-xs font-semibold text-slate-700 block mb-1">
-                {isComprador
-                  ? 'Piso Estimado del Vendedor (Mínimo que aceptaría)'
-                  : 'Techo Estimado del Comprador (Máximo que pagaría)'}
+              <label htmlFor="counterpart-pr-input" className="text-xs font-semibold text-slate-700 flex items-center justify-between flex-wrap gap-1 mb-1">
+                <span>
+                  {isComprador
+                    ? 'Límite Mínimo Aceptable de la Contraparte (Vendedor)'
+                    : 'Límite Máximo Admisible de la Contraparte (Comprador)'}
+                </span>
+                <span className="text-[11px] font-medium text-slate-500">
+                  {isComprador ? 'Mínimo que aceptaría' : 'Máximo que pagaría'}
+                </span>
               </label>
               <div className="flex items-center gap-3 mt-2">
                 <input
@@ -89,7 +94,7 @@ export const ZopaVisualizer: React.FC<ZopaVisualizerProps> = ({
                 <span className="text-xs font-semibold text-slate-500">{currency}</span>
               </div>
               <p className="text-[11px] text-slate-500 mt-2">
-                Estima este valor investigando los costos, alternativas y presiones de la otra parte.
+                Punto de Reserva estimado de la otra parte: por encima o por debajo de esta cifra preferirá retirarse y activar su alternativa (BATNA).
               </p>
             </div>
 
@@ -111,11 +116,11 @@ export const ZopaVisualizer: React.FC<ZopaVisualizerProps> = ({
               <p className="text-xs leading-relaxed opacity-90">
                 {hasZopa ? (
                   <>
-                    El piso del vendedor ({formatCurrency(sellerFloor, currency)}) está por debajo del techo del comprador ({formatCurrency(buyerCeiling, currency)}). Hay un excedente de negociación de <strong>{formatCurrency(zopaRange, currency)}</strong> a repartir.
+                    El límite mínimo del vendedor ({formatCurrency(sellerFloor, currency)}) está por debajo del límite máximo del comprador ({formatCurrency(buyerCeiling, currency)}). Hay un excedente de negociación de <strong>{formatCurrency(zopaRange, currency)}</strong> para crear valor y acordar.
                   </>
                 ) : (
                   <>
-                    El piso mínimo del vendedor ({formatCurrency(sellerFloor, currency)}) supera el límite máximo del comprador ({formatCurrency(buyerCeiling, currency)}). No habrá acuerdo racional a menos que una de las partes modifique su BATNA o introduzca nuevas variables de valor.
+                    El límite mínimo del vendedor ({formatCurrency(sellerFloor, currency)}) supera el límite máximo permisible del comprador ({formatCurrency(buyerCeiling, currency)}). No habrá acuerdo racional a menos que una de las partes modifique su BATNA o incorpore nuevas variables a la negociación.
                   </>
                 )}
               </p>
@@ -134,23 +139,23 @@ export const ZopaVisualizer: React.FC<ZopaVisualizerProps> = ({
                 <div className="w-full flex items-center justify-between text-xs font-medium text-slate-700">
                   <div className="flex items-center gap-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                    <span>Piso Vendedor: <strong>{formatCurrency(sellerFloor, currency)}</strong></span>
+                    <span>Límite Mínimo Vendedor: <strong>{formatCurrency(sellerFloor, currency)}</strong></span>
                   </div>
                   <div className="px-3 py-1 bg-emerald-200/70 rounded-md font-bold text-emerald-800 text-[11px]">
                     ZOPA: {formatCurrency(zopaRange, currency)}
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                    <span>Techo Comprador: <strong>{formatCurrency(buyerCeiling, currency)}</strong></span>
+                    <span>Límite Máximo Comprador: <strong>{formatCurrency(buyerCeiling, currency)}</strong></span>
                   </div>
                 </div>
               ) : (
                 <div className="w-full flex items-center justify-between text-xs font-medium text-rose-800">
-                  <div>Techo Comprador: <strong>{formatCurrency(buyerCeiling, currency)}</strong></div>
+                  <div>Límite Máximo Comprador: <strong>{formatCurrency(buyerCeiling, currency)}</strong></div>
                   <div className="px-2 py-0.5 bg-rose-200 rounded text-[11px] font-bold">
                     Diferencia: {formatCurrency(Math.abs(zopaRange), currency)}
                   </div>
-                  <div>Piso Vendedor: <strong>{formatCurrency(sellerFloor, currency)}</strong></div>
+                  <div>Límite Mínimo Vendedor: <strong>{formatCurrency(sellerFloor, currency)}</strong></div>
                 </div>
               )}
             </div>

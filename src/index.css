@@ -1,1 +1,20 @@
 @import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg: #0d0d0e;
+    --ink: #f0f0f2;
+    --accent: #d4ff00;
+    --ink-muted: rgba(240, 240, 242, 0.5);
+    --ink-faint: rgba(240, 240, 242, 0.1);
+  }
+}
+
+.font-syne {
+  font-family: 'Syne', sans-serif;
+}
+
+.font-mono-tech {
+  font-family: 'JetBrains Mono', monospace;
+}
+
